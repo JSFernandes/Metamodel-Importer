@@ -7,4 +7,9 @@ public class ClassMeta extends EntityMeta {
 	public ClassMeta parent;
 	public ArrayList<AttributeMeta[]> attributes;
 	public String name;
+	public ClassMeta instance_of;
+	
+	public boolean is_attribute() {
+		return (instance_of.name == "Attribute");
+	}
 }
