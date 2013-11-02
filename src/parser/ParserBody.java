@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 
 import data.AssociationEndMeta;
 import data.AssociationMeta;
+import data.AttributeMeta;
 import data.ClassMeta;
 import data.ConstraintMeta;
 import data.DependencyMeta;
@@ -39,7 +40,8 @@ public class ParserBody {
 			// Find classes and store them
 		
 		firstPassingNode(root);
-		
+		constructInheritance();
+		setClassesAsAttributes();
 		
 		// Go back to root, find association container
 		// Associate everything
@@ -61,6 +63,14 @@ public class ParserBody {
 		
 		EntityMeta.all_entities.put(c.id, c);
 		EntityMeta.all_classes.put(c.id, c);
+		
+		Element tmp = e.getFirstChildElement("ModelChildren");
+		if(tmp != null) {
+			Elements attributes = tmp.getChildElements("Attribute");
+		
+			for(int i = 0; i < attributes.size(); ++i)
+				handleAttribute(attributes.get(i), c);
+		}
 	}
 	
 	public AssociationEndMeta handleAssociationEnd(Element e, AssociationMeta a, String from_or_to) {
@@ -136,6 +146,20 @@ public class ParserBody {
 		EntityMeta.all_constraints.put(c.id, c);
 	}
 	
+	public void handleAttribute(Element e, ClassMeta c) {
+		AttributeMeta attr = new AttributeMeta();
+		
+		attr.id = e.getAttributeValue("Id");
+		attr.name = e.getAttributeValue("Name");
+		
+		Element tmp = e.getFirstChildElement("Type");
+		attr.type = tmp.getFirstChildElement("DataType").getAttributeValue("Name");
+		
+		EntityMeta.all_entities.put(attr.id, attr);
+		
+		c.attributes.add(attr);
+	}
+	
 	public void handleGeneralization(Element e) {
 		GeneralizationMeta g = new GeneralizationMeta();
 		
@@ -178,30 +202,20 @@ public class ParserBody {
 			firstPassingNode(children.get(i));
 	}
 	
-	public void printAll() {
-		System.out.println(root.getLocalName());
-		printNode(root);
-	}
-	
-	public boolean doIWantThis(String value) {
-		return (value.equals("Association") || value.equals("FromEnd") || value.equals("ToEnd")
-				|| value.equals("Class") || value.equals("Dependency") || value.equals("Constraint")
-				|| value.equals("Generalization"));
-	}
-	
-	public void printNode(Element e) {
-		Elements children = e.getChildElements();
-		for(int i = 0; i < children.size(); ++i) {
-			if(doIWantThis(children.get(i).getLocalName()))
-				System.out.println(children.get(i).getLocalName());
+	public void constructInheritance() {
+		
+		for(GeneralizationMeta g : EntityMeta.all_generalizations.values()) {
+			EntityMeta.all_classes.get(g.to).parent = EntityMeta.all_classes.get(g.from);
 		}
-		for(int i = 0; i < children.size(); ++i) {
-			printNode(children.get(i));
+	}
+
+	public void setClassesAsAttributes() {
+		for(ClassMeta c : EntityMeta.all_classes.values()) {
+			c.set_attribute();
 		}
 	}
 	
 	public static void main(String[] args) {
 		ParserBody pb = new ParserBody("project.xml");
-		pb.printAll();
 	}
 }
