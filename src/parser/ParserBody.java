@@ -42,6 +42,7 @@ public class ParserBody {
 		firstPassingNode(root);
 		constructInheritance();
 		setClassesAsAttributes();
+		implementInheritance();
 		
 		// Go back to root, find association container
 		// Associate everything
@@ -209,9 +210,46 @@ public class ParserBody {
 		}
 	}
 
+	public void implementInheritance() {
+		for (ClassMeta c : EntityMeta.all_classes.values()) {
+			c.implementFather();
+		}
+	}
+	
 	public void setClassesAsAttributes() {
 		for(ClassMeta c : EntityMeta.all_classes.values()) {
 			c.set_attribute();
+			if(c.is_attribute)
+				handleClassThatIsAttribute(c);
+		}
+	}
+	
+	public void handleClassThatIsAttribute(ClassMeta c) {
+		
+		for(AssociationEndMeta ae : EntityMeta.all_association_ends.values()) {
+			if(ae.target_id.equals(c.id)) {
+				AssociationMeta assoc = EntityMeta.all_associations.get(ae.assoc_id);
+				
+				AssociationEndMeta other_end;
+				
+				if(ae.equals(assoc.target)) {
+					other_end = assoc.source;
+				}
+				else {
+					other_end = assoc.target;
+				}
+				
+				ClassMeta real_class = EntityMeta.all_classes.get(other_end.target_id);
+				
+				AttributeMeta a = new AttributeMeta();
+				a.id = c.id;
+				a.name = c.name;
+				a.owner_class = real_class.id;
+				a.multiplicity = ae.multiplicity;
+				real_class.attributes.add(a);
+				
+				assoc.is_creatable = false;
+			}
 		}
 	}
 	

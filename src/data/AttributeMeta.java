@@ -5,4 +5,5 @@ public class AttributeMeta extends EntityMeta {
 	public String type;
 	public String default_value;
 	public String multiplicity;
+	public String owner_class;
 }
