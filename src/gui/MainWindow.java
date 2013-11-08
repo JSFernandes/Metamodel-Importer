@@ -2,6 +2,7 @@ package gui;
 
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.GridLayout;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JFrame;
@@ -57,7 +58,7 @@ public class MainWindow {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		
-		JPanel vertical = new JPanel();
+		JPanel vertical = new JPanel(new GridLayout(30, 1));
 		frame.getContentPane().add(vertical, BorderLayout.EAST);
 		
 		JScrollPane scrollVertical = new JScrollPane();
