@@ -254,6 +254,6 @@ public class ParserBody {
 	}
 	
 	public static void main(String[] args) {
-		ParserBody pb = new ParserBody("project.xml");
+		//ParserBody pb = new ParserBody("project.xml");
 	}
 }
