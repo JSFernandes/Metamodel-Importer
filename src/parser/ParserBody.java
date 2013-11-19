@@ -218,7 +218,7 @@ public class ParserBody {
 	
 	public void setClassesAsAttributes() {
 		for(ClassMeta c : EntityMeta.all_classes.values()) {
-			c.set_attribute();
+			c.setAttribute();
 			if(c.is_attribute)
 				handleClassThatIsAttribute(c);
 		}

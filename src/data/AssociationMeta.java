@@ -12,8 +12,10 @@ public class AssociationMeta extends EntityMeta {
 		ArrayList<AssociationMeta> assocs = new ArrayList<AssociationMeta>();
 		
 		for(AssociationMeta assoc : EntityMeta.all_associations.values()) {
-			if(assoc.is_creatable)
+			System.out.println(assoc.name);
+			if(assoc.is_creatable) {
 				assocs.add(assoc);
+			}
 		}
 		
 		return assocs;

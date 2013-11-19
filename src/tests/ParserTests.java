@@ -57,16 +57,16 @@ public class ParserTests{
 		assertEquals(EntityMeta.all_classes.get("gDzWIEKFS_j4oga8").parent, EntityMeta.all_classes.get("fQQGIEKFS_j4ogl_"));
 		
 		assertEquals(true, EntityMeta.all_classes.get("6GCWIEKFS_j4ogZ3").is_attribute);
-		assertEquals(false, EntityMeta.all_classes.get("6GCWIEKFS_j4ogZ3").is_creatable());
+		assertEquals(false, EntityMeta.all_classes.get("6GCWIEKFS_j4ogZ3").isCreatable());
 		
 		assertEquals(false, EntityMeta.all_classes.get("hcoGIEKFS_j4ogmK").is_attribute);
-		assertEquals(true, EntityMeta.all_classes.get("hcoGIEKFS_j4ogmK").is_creatable());
+		assertEquals(true, EntityMeta.all_classes.get("hcoGIEKFS_j4ogmK").isCreatable());
 		
 		assertEquals(false, EntityMeta.all_classes.get("gDzWIEKFS_j4oga8").is_attribute);
-		assertEquals(true, EntityMeta.all_classes.get("gDzWIEKFS_j4oga8").is_creatable());
+		assertEquals(true, EntityMeta.all_classes.get("gDzWIEKFS_j4oga8").isCreatable());
 		
-		assertEquals(false, EntityMeta.all_classes.get("qaM6IEKFS_j4ogkf").is_creatable());
-		assertEquals(false, EntityMeta.all_classes.get("jyK6IEKFS_j4ogkw").is_creatable());
+		assertEquals(false, EntityMeta.all_classes.get("qaM6IEKFS_j4ogkf").isCreatable());
+		assertEquals(false, EntityMeta.all_classes.get("jyK6IEKFS_j4ogkw").isCreatable());
 		
 		assertEquals(1, EntityMeta.all_classes.get("gDzWIEKFS_j4oga8").attributes.size());
 		assertEquals(1, EntityMeta.all_classes.get("fQQGIEKFS_j4ogl_").attributes.size());
@@ -89,5 +89,7 @@ public class ParserTests{
 		
 		assertEquals(3, creatable_classes.size());
 		assertEquals(2, creatable_assocs.size());
+		assertEquals("f2sfg", creatable_assocs.get(0).name);
+		assertEquals("sfg2f", creatable_assocs.get(1).name);
 	}
 }

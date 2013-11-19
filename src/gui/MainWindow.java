@@ -5,9 +5,9 @@ import java.awt.EventQueue;
 import java.awt.GridLayout;
 
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 
 import java.awt.BorderLayout;
 import java.util.ArrayList;
@@ -15,11 +15,14 @@ import java.util.ArrayList;
 import javax.swing.JScrollPane;
 
 import parser.ParserBody;
+import data.AssociationMeta;
 import data.ClassMeta;
 
 public class MainWindow {
 
-	ButtonGroup tool_buttons;
+	ButtonGroup tool_buttons = new ButtonGroup();
+	ImageIcon class_icon;
+	ImageIcon assoc_icon;
 	
 	private JFrame frame;
 
@@ -57,6 +60,8 @@ public class MainWindow {
 		frame.setBounds(100, 100, 900, 700);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+		class_icon = new ImageIcon("class_icon.jpg", "Class");
+		assoc_icon = new ImageIcon("assoc_icon.jpg", "Association");
 		
 		JPanel vertical = new JPanel(new GridLayout(30, 1));
 		frame.getContentPane().add(vertical, BorderLayout.EAST);
@@ -67,19 +72,26 @@ public class MainWindow {
 		setTools(vertical);
 		
 		JPanel workingArea = new JPanel();
+		workingArea.setLayout(null);
 		frame.getContentPane().add(workingArea, BorderLayout.CENTER);
+		workingArea.addMouseListener(new WorkAreaListener(workingArea, tool_buttons));
 		
 		workingArea.setBackground(Color.WHITE);
 	}
-
 	
 	private void setTools(JPanel toolbox) {
-		tool_buttons = new ButtonGroup();
 		
 		ArrayList<ClassMeta> classes = ClassMeta.getCreatableClasses();
+		ArrayList<AssociationMeta> assocs = AssociationMeta.getAllCreatableAssocs();
 		
 		for(int i = 0; i < classes.size(); ++i) {
-			JRadioButton b = new JRadioButton(classes.get(i).name);
+			UMLButton b = new UMLButton(classes.get(i).name, class_icon, classes.get(i).id, "Class");
+			tool_buttons.add(b);
+			toolbox.add(b);
+		}
+		
+		for(int i = 0; i < assocs.size(); ++i) {
+			UMLButton b = new UMLButton(assocs.get(i).name, assoc_icon, assocs.get(i).id, "Association");
 			tool_buttons.add(b);
 			toolbox.add(b);
 		}
