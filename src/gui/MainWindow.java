@@ -71,12 +71,12 @@ public class MainWindow {
 		
 		setTools(vertical);
 		
-		JPanel workingArea = new JPanel();
-		workingArea.setLayout(null);
-		frame.getContentPane().add(workingArea, BorderLayout.CENTER);
-		workingArea.addMouseListener(new WorkAreaListener(workingArea, tool_buttons));
+		WorkAreaPanel working_area = new WorkAreaPanel();
+		working_area.setLayout(null);
+		frame.getContentPane().add(working_area, BorderLayout.CENTER);
+		working_area.addMouseListener(new WorkAreaListener(working_area, tool_buttons));
 		
-		workingArea.setBackground(Color.WHITE);
+		working_area.setBackground(Color.WHITE);
 	}
 	
 	private void setTools(JPanel toolbox) {
