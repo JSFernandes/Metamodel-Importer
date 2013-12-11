@@ -2,9 +2,9 @@ package instances;
 
 import data.AssociationMeta;
 
-public class AssociationInstance {
-	AssociationMeta assoc_type;
-	String local_name;
-	String source_id;
-	String target_id;
+public class AssociationInstance extends Instance {
+	public AssociationMeta assoc_type;
+	public String local_name;
+	public int source_id;
+	public int target_id;
 }
