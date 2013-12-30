@@ -206,7 +206,7 @@ public class ParserBody {
 	public void constructInheritance() {
 		
 		for(GeneralizationMeta g : EntityMeta.all_generalizations.values()) {
-			EntityMeta.all_classes.get(g.to).parent = EntityMeta.all_classes.get(g.from);
+			EntityMeta.all_classes.get(g.to).parents.add(EntityMeta.all_classes.get(g.from));
 		}
 	}
 

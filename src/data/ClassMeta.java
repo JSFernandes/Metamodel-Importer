@@ -4,14 +4,14 @@ import java.util.ArrayList;
 
 public class ClassMeta extends EntityMeta {
 	public boolean is_abstract;
-	public ClassMeta parent;
+	public ArrayList<ClassMeta> parents = new ArrayList<ClassMeta>();
 	public ArrayList<AttributeMeta> attributes = new ArrayList<AttributeMeta>();
 	public String name;
 	public ClassMeta instance_of;
 	public boolean is_attribute = false;
 	
 	boolean setAsAttribute() {
-		if(parent == null) {
+		if(parents.size() == 0) {
 			if(name.equals("Attribute"))
 				return true;
 			
@@ -22,7 +22,11 @@ public class ClassMeta extends EntityMeta {
 				return true;
 		}
 		else {
-			return parent.setAsAttribute();
+			for(int i = 0; i < parents.size(); ++i) {
+				if(parents.get(i).setAsAttribute())
+					return true;
+			}
+			return false;
 		}
 	}
 	
@@ -36,13 +40,16 @@ public class ClassMeta extends EntityMeta {
 
 	public void implementFather() {
 		
-		if(parent == null)
+		if(parents.size() == 0)
 			return;
 		else {
-			if(parent.parent != null)
-				parent.implementFather();
+			for(int i = 0; i < parents.size(); ++i) {
+				if(parents.get(i) != null)
+					parents.get(i).implementFather();
+			}
 			
-			attributes.addAll(parent.attributes);
+			for(int i = 0; i < parents.size(); ++i)
+				attributes.addAll(parents.get(i).attributes);
 		}
 	}
 	
@@ -60,8 +67,13 @@ public class ClassMeta extends EntityMeta {
 	public boolean isOrInheritsFrom(String parent_id) {
 		if(id.equals(parent_id))
 			return true;
-		else if(parent != null)
-			return parent.isOrInheritsFrom(parent_id);
+		else if(parents.size() != 0) {
+			for(int i = 0; i < parents.size(); ++i) {
+				if(parents.get(i).isOrInheritsFrom(parent_id))
+					return true;
+			}
+			return false;
+		}
 		else
 			return false;
 	}

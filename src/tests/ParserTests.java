@@ -61,7 +61,7 @@ public class ParserTests{
 		ParserBody p = new ParserBody("project.xml");
 		p.generateData();
 		
-		assertEquals(EntityMeta.all_classes.get(CONCEPT_ID).parent, EntityMeta.all_classes.get(FEATURE_ID));
+		assertEquals(EntityMeta.all_classes.get(CONCEPT_ID).parents.get(0), EntityMeta.all_classes.get(FEATURE_ID));
 		
 		assertEquals(true, EntityMeta.all_classes.get(GROUP_KIND_ID).is_attribute);
 		assertEquals(false, EntityMeta.all_classes.get(GROUP_KIND_ID).isCreatable());
