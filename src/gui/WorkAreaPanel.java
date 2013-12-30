@@ -1,6 +1,8 @@
 package gui;
 
-import java.awt.Color;
+import instances.ClassInstance;
+import instances.ModelInstance;
+
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -8,6 +10,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.geom.AffineTransform;
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.swing.JPanel;
 
@@ -24,9 +28,16 @@ public class WorkAreaPanel extends JPanel implements FocusListener{
 	public void repaint() {
 		
 		if(rectangles != null) {
-			for(Point p : rectangles.values()) {
-				getGraphics().drawRect(p.x - 5, p.y - 5, 150, 30);
-	    	}
+			ModelInstance model = ModelInstance.getInstance();
+			Iterator<Map.Entry<Integer, Point>> it = rectangles.entrySet().iterator();
+			while(it.hasNext()) {
+				Map.Entry<Integer, Point> entry = it.next();
+				Point p = entry.getValue();
+				getGraphics().drawRect(p.x - 5, p.y - 5, 200, 30);
+				int id = entry.getKey();
+				ClassInstance i = model.instanced_classes.get(id);
+				getGraphics().drawRect(p.x - 5, p.y + 25, 200, 30*i.attributes.size());
+			}
 		}
 		
 		if(lines != null) {

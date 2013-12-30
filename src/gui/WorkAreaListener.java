@@ -2,7 +2,7 @@ package gui;
 
 import instances.AssociationInstance;
 import instances.ClassInstance;
-import instances.Instance;
+import instances.ModelInstance;
 
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -14,15 +14,16 @@ import java.util.Map;
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JLabel;
+import javax.swing.JTextField;
 
 import data.AssociationMeta;
-import data.ClassMeta;
 import data.EntityMeta;
 
 public class WorkAreaListener implements MouseListener {
 	
 	WorkAreaPanel panel;
 	ButtonGroup tool_buttons;
+	ModelInstance model_instance = ModelInstance.getInstance();
 	
 	ConnectorState state = ConnectorState.FIRST_CLICK;
 	public String last_connector_id = "";
@@ -70,19 +71,44 @@ public class WorkAreaListener implements MouseListener {
 		last_clicked_class = null;
 		
 		// TODO Auto-generated method stub
-		JLabel lab = new JLabel(selected_button.getText());
+		JLabel lab = new JLabel(selected_button.getText() + ": ");
 		//g.drawRect(arg0.getPoint().x - 5, arg0.getPoint().y - 5, 
 		//		150, 20);
 		
-		ClassInstance c = new ClassInstance();
-		c.meta = EntityMeta.all_classes.get(selected_button.id);
+		ClassInstance c = new ClassInstance(EntityMeta.all_classes.get(selected_button.id));
 		panel.rectangles.put(c.id, arg0.getPoint());
 		
-		Instance.instanced_classes.put(c.id, c);
+		model_instance.instanced_classes.put(c.id, c);
 		
 		panel.add(lab);
 		lab.setLocation(arg0.getPoint());
 		lab.setSize(lab.getPreferredSize());
+		
+		JTextField instance_name = new JTextField(c.instance_name);
+		panel.add(instance_name);
+		instance_name.setLocation(new Point(arg0.getPoint().x + lab.getSize().width, arg0.getPoint().y));
+		instance_name.setSize(200-lab.getWidth()-5, instance_name.getPreferredSize().height);
+		instance_name.setBorder(null);
+		instance_name.addFocusListener(new JTextFieldListener(instance_name, c));
+		
+		for(int i = 0; i < c.attributes.size(); ++i) {
+			JLabel attr_lab = new JLabel(c.attributes.get(i).meta.name + ": ");
+			panel.add(attr_lab);
+			
+			attr_lab.setLocation(new Point(arg0.getPoint().x, arg0.getPoint().y+35+5*i));
+			attr_lab.setSize(attr_lab.getPreferredSize());
+			
+			attr_lab.setToolTipText(c.attributes.get(i).meta.type);
+			System.out.println(c.attributes.get(i).meta.type);
+			
+			JTextField attr_instance_name = new JTextField(c.attributes.get(i).value);
+			panel.add(attr_instance_name);
+			attr_instance_name.setLocation(new Point(arg0.getPoint().x + attr_lab.getSize().width, arg0.getPoint().y+35+5*i));
+			attr_instance_name.setSize(200-attr_lab.getWidth()-5, attr_instance_name.getPreferredSize().height);
+			attr_instance_name.setBorder(null);
+			attr_instance_name.setToolTipText(c.attributes.get(i).meta.type);
+			attr_instance_name.addFocusListener(new JTextFieldListener(attr_instance_name, c.attributes.get(i)));
+		}
 		
 		panel.revalidate();
 		panel.repaint();
@@ -100,7 +126,7 @@ public class WorkAreaListener implements MouseListener {
 			
 			if(click_point.x >= (p.x-5) && click_point.x <= (p.x + 145) &&
 					click_point.y >= (p.y-5) && click_point.y <= (p.y+25)) {
-				instance = Instance.instanced_classes.get(entry.getKey());
+				instance = model_instance.instanced_classes.get(entry.getKey());
 			}
 		}
 		if(state == ConnectorState.FIRST_CLICK || !last_connector_id.equals(selected_button.id)) {
@@ -123,6 +149,7 @@ public class WorkAreaListener implements MouseListener {
 					assoc.target_id = instance.id;
 					last_clicked_class.assocs.add(assoc);
 					instance.assocs.add(assoc);
+					model_instance.instanced_assocs.put(assoc.id, assoc);
 					panel.lines.put(assoc.id, new Point[]{first_click_point, click_point});
 					panel.revalidate();
 					panel.repaint();
