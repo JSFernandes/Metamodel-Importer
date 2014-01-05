@@ -30,7 +30,7 @@ public class MainWindow {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		ParserBody p = new ParserBody("project.xml");
+		ParserBody p = new ParserBody("project2.xml");
 		p.generateData();
 		
 		EventQueue.invokeLater(new Runnable() {

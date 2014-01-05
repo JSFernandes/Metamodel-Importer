@@ -1,6 +1,7 @@
 package parser;
 
 import java.io.FileInputStream;
+import java.util.HashMap;
 
 import data.AssociationEndMeta;
 import data.AssociationMeta;
@@ -9,6 +10,7 @@ import data.ClassMeta;
 import data.ConstraintMeta;
 import data.DependencyMeta;
 import data.EntityMeta;
+import data.EnumMeta;
 import data.GeneralizationMeta;
 import nu.xom.Builder;
 import nu.xom.Document;
@@ -41,9 +43,13 @@ public class ParserBody {
 		
 		firstPassingNode(root);
 		constructInheritance();
-		setClassesAsAttributes();
+		setClassesAsAttributesOrEnums();
 		implementInheritance();
 		
+		
+		System.out.println("NumAssocs: " + EntityMeta.all_associations.size());
+		System.out.println("NumCLasses: " + EntityMeta.all_classes.size());
+		System.out.println("NumDependencies: " + EntityMeta.all_dependencies.size());
 		// Go back to root, find association container
 		// Associate everything
 		// Rework the data depending on wether the classes are really classes or attributes
@@ -156,6 +162,8 @@ public class ParserBody {
 		Element tmp = e.getFirstChildElement("Type");
 		attr.type = tmp.getFirstChildElement("DataType").getAttributeValue("Name");
 		
+		attr.default_value = e.getAttributeValue("InitialValue");
+		
 		EntityMeta.all_entities.put(attr.id, attr);
 		
 		c.attributes.add(attr);
@@ -216,38 +224,92 @@ public class ParserBody {
 		}
 	}
 	
-	public void setClassesAsAttributes() {
+	public void setClassesAsAttributesOrEnums() {
 		for(ClassMeta c : EntityMeta.all_classes.values()) {
 			c.setAttribute();
+			System.out.println("Id: " + c.id + "Name: " + c.name + " Attr: " + c.is_attribute + " Enum: " + c.is_enum);
 			if(c.is_attribute)
 				handleClassThatIsAttribute(c);
+			if(c.is_enum)
+				handleClassThatIsEnum(c);
+		}
+		
+		for(ClassMeta c : EntityMeta.all_classes.values()) {
+			if(c.is_enum)
+				addValuesToEnum(c);
 		}
 	}
 	
-	public void handleClassThatIsAttribute(ClassMeta c) {
+	private void addValuesToEnum(ClassMeta c) {
+		EnumMeta e = EntityMeta.all_enumerations.get(c.id);
 		
 		for(AssociationEndMeta ae : EntityMeta.all_association_ends.values()) {
 			if(ae.target_id.equals(c.id)) {
 				AssociationMeta assoc = EntityMeta.all_associations.get(ae.assoc_id);
 				
-				AssociationEndMeta other_end;
+				if(ae.equals(assoc.source)) {
+					AssociationEndMeta other_end = assoc.target;
+					
+					ClassMeta real_class = EntityMeta.all_classes.get(other_end.target_id);
+					e.possible_values.add(real_class.name);
+				}
+				assoc.is_creatable = false;
+			}
+		}
+	}
+
+	private void handleClassThatIsEnum(ClassMeta c) {
+		for(AssociationEndMeta ae : EntityMeta.all_association_ends.values()) {
+			if(ae.target_id.equals(c.id)) {
+				AssociationMeta assoc = EntityMeta.all_associations.get(ae.assoc_id);
 				
+				if(ae.equals(assoc.target)) {
+					AssociationEndMeta other_end = assoc.source;
+					
+					ClassMeta real_class = EntityMeta.all_classes.get(other_end.target_id);
+					
+					EnumMeta e = new EnumMeta();
+					e.name = c.name;
+					
+					real_class.enumerations.add(e);
+					
+					EntityMeta.all_enumerations.put(c.id, e);
+				}
+				assoc.is_creatable = false;
+			}
+		}
+	}
+
+	public void handleClassThatIsAttribute(ClassMeta c) {
+		
+		System.out.println("Handling: " + c.name);
+		for(AssociationEndMeta ae : EntityMeta.all_association_ends.values()) {
+			if(ae.target_id.equals(c.id)) {
+				System.out.println("found an ae");
+				AssociationMeta assoc = EntityMeta.all_associations.get(ae.assoc_id);
+				
+				AssociationEndMeta other_end;
 				if(ae.equals(assoc.target)) {
 					other_end = assoc.source;
 				}
-				else {
+				else
 					other_end = assoc.target;
-				}
-				
+					
 				ClassMeta real_class = EntityMeta.all_classes.get(other_end.target_id);
-				
+					
 				AttributeMeta a = new AttributeMeta();
 				a.id = c.id;
 				a.name = c.name;
 				a.owner_class = real_class.id;
 				a.multiplicity = ae.multiplicity;
 				real_class.attributes.add(a);
+				System.out.println("attr added to: " + real_class.name);
 				
+				for(int i = 0; i < c.attributes.size(); ++i) {
+					if(c.attributes.get(i).name.equals("type"))
+						a.type = c.attributes.get(i).default_value;
+				}
+					
 				assoc.is_creatable = false;
 			}
 		}

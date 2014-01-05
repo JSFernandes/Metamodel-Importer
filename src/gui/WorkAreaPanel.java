@@ -25,6 +25,29 @@ public class WorkAreaPanel extends JPanel implements FocusListener{
 	
 	private final int ARR_SIZE = 10;
 	
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		if(rectangles != null) {
+			ModelInstance model = ModelInstance.getInstance();
+			Iterator<Map.Entry<Integer, Point>> it = rectangles.entrySet().iterator();
+			while(it.hasNext()) {
+				Map.Entry<Integer, Point> entry = it.next();
+				Point p = entry.getValue();
+				g.drawRect(p.x - 5, p.y - 5, 200, 30);
+				int id = entry.getKey();
+				ClassInstance i = model.instanced_classes.get(id);
+				g.drawRect(p.x - 5, p.y + 25, 200, 30*(i.attributes.size()+i.enums.size()));
+			}
+		}
+		
+		if(lines != null) {
+			for(Point[] p : lines.values()) {
+				//getGraphics().drawLine(p[0].x, p[0].y, p[1].x, p[1].y);
+				drawArrow(g, p[0].x, p[0].y, p[1].x, p[1].y);
+			}
+		}
+	}
+	/*
 	public void repaint() {
 		
 		if(rectangles != null) {
@@ -36,7 +59,7 @@ public class WorkAreaPanel extends JPanel implements FocusListener{
 				getGraphics().drawRect(p.x - 5, p.y - 5, 200, 30);
 				int id = entry.getKey();
 				ClassInstance i = model.instanced_classes.get(id);
-				getGraphics().drawRect(p.x - 5, p.y + 25, 200, 30*i.attributes.size());
+				getGraphics().drawRect(p.x - 5, p.y + 25, 200, 30*(i.attributes.size()+i.enums.size()));
 			}
 		}
 		
@@ -46,7 +69,7 @@ public class WorkAreaPanel extends JPanel implements FocusListener{
 				drawArrow(getGraphics(), p[0].x, p[0].y, p[1].x, p[1].y);
 			}
 		}
-	}
+	}*/
 	
 	public void focusGained(FocusEvent fe){
 	    repaint();

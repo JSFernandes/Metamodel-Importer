@@ -2,6 +2,7 @@ package gui;
 
 import instances.AssociationInstance;
 import instances.ClassInstance;
+import instances.EnumInstance;
 import instances.ModelInstance;
 
 import java.awt.Point;
@@ -13,6 +14,7 @@ import java.util.Map;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
@@ -99,7 +101,6 @@ public class WorkAreaListener implements MouseListener {
 			attr_lab.setSize(attr_lab.getPreferredSize());
 			
 			attr_lab.setToolTipText(c.attributes.get(i).meta.type);
-			System.out.println(c.attributes.get(i).meta.type);
 			
 			JTextField attr_instance_name = new JTextField(c.attributes.get(i).value);
 			panel.add(attr_instance_name);
@@ -108,6 +109,25 @@ public class WorkAreaListener implements MouseListener {
 			attr_instance_name.setBorder(null);
 			attr_instance_name.setToolTipText(c.attributes.get(i).meta.type);
 			attr_instance_name.addFocusListener(new JTextFieldListener(attr_instance_name, c.attributes.get(i)));
+		}
+		
+		for(int i = 0; i < c.enums.size(); ++i) {
+			EnumInstance enum_i = c.enums.get(i);
+			JLabel enum_lab = new JLabel(enum_i.meta.name + ": ");
+			panel.add(enum_lab);
+			enum_lab.setLocation(new Point(arg0.getPoint().x, arg0.getPoint().y+35+(c.attributes.size()+i)*5));
+			enum_lab.setSize(enum_lab.getPreferredSize());
+			
+			String[] values = new String[enum_i.meta.possible_values.size()];
+			
+			for(int j = 0; j < values.length; ++j)
+				values[j] = enum_i.meta.possible_values.get(j);
+			
+			
+			JComboBox<String> enum_values = new JComboBox<String>(values);
+			panel.add(enum_values);
+			enum_values.setLocation(new Point(arg0.getPoint().x+enum_lab.getSize().width, enum_lab.getLocation().y));
+			enum_values.setSize(enum_lab.getPreferredSize());
 		}
 		
 		panel.revalidate();
@@ -123,10 +143,11 @@ public class WorkAreaListener implements MouseListener {
 		while(it.hasNext()) {
 			Map.Entry<Integer, Point> entry = it.next();
 			Point p = entry.getValue();
+			ClassInstance c = model_instance.instanced_classes.get(entry.getKey());
 			
-			if(click_point.x >= (p.x-5) && click_point.x <= (p.x + 145) &&
-					click_point.y >= (p.y-5) && click_point.y <= (p.y+25)) {
-				instance = model_instance.instanced_classes.get(entry.getKey());
+			if(click_point.x >= (p.x-5) && click_point.x <= (p.x + 195) &&
+					click_point.y >= (p.y-5) && click_point.y <= (p.y+25+(c.attributes.size()+c.enums.size())*30)) {
+				instance = c;
 			}
 		}
 		if(state == ConnectorState.FIRST_CLICK || !last_connector_id.equals(selected_button.id)) {
@@ -142,7 +163,6 @@ public class WorkAreaListener implements MouseListener {
 		else{
 			if(instance != null) {
 				if(checkIfCanConnect(selected_button, instance)) {
-					System.out.println("second click");
 					AssociationInstance assoc = new AssociationInstance();
 					assoc.assoc_type = EntityMeta.all_associations.get(selected_button.id);
 					assoc.source_id = last_clicked_class.id;
@@ -150,7 +170,15 @@ public class WorkAreaListener implements MouseListener {
 					last_clicked_class.assocs.add(assoc);
 					instance.assocs.add(assoc);
 					model_instance.instanced_assocs.put(assoc.id, assoc);
-					panel.lines.put(assoc.id, new Point[]{first_click_point, click_point});
+					
+					AssociationMeta a_meta = EntityMeta.all_associations.get(selected_button.id);
+					if(instance.meta.isOrInheritsFrom(a_meta.source.target_id)) {
+						panel.lines.put(assoc.id, new Point[]{click_point, first_click_point});
+					}
+					else {
+						panel.lines.put(assoc.id, new Point[]{first_click_point, click_point});
+					}
+					
 					panel.revalidate();
 					panel.repaint();
 				}
@@ -198,8 +226,6 @@ public class WorkAreaListener implements MouseListener {
 			}
 			catch(Exception e) {
 				String[] regex_result = multiplicity_other_end.split("\\.\\.");
-				System.out.println(multiplicity_other_end);
-				System.out.println(regex_result.length);
 				int mult = Integer.parseInt(regex_result[regex_result.length-1]);
 				return verify_number_assocs(instance, mult, assoc);
 			}
