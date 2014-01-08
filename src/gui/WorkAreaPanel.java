@@ -22,12 +22,13 @@ public class WorkAreaPanel extends JPanel implements FocusListener{
 	private static final long serialVersionUID = -1156919994429653969L;
 	public Hashtable<Integer, Point> rectangles = new Hashtable<Integer, Point>();
 	public Hashtable<Integer, Point[]> lines = new Hashtable<Integer, Point[]>();
+	public boolean process_repaint = true;
 	
 	private final int ARR_SIZE = 10;
 	
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		if(rectangles != null) {
+		if(rectangles != null && process_repaint) {
 			ModelInstance model = ModelInstance.getInstance();
 			Iterator<Map.Entry<Integer, Point>> it = rectangles.entrySet().iterator();
 			while(it.hasNext()) {

@@ -1,6 +1,6 @@
 package instances;
 
-public class Instance {
+public abstract class Instance {
 	
 	public static int next_id = 0;
 	

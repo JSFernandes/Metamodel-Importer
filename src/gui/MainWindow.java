@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.Button;
 import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.GridLayout;
@@ -10,6 +11,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 import javax.swing.JScrollPane;
@@ -95,5 +98,26 @@ public class MainWindow {
 			tool_buttons.add(b);
 			toolbox.add(b);
 		}
+		
+		Button b = new Button("Generate instances");
+		b.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setUpForInstantiation();
+		}});
+		toolbox.add(b);
+	}
+
+	protected void setUpForInstantiation() {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					SubInstancesWindow window = new SubInstancesWindow();
+					window.frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 }

@@ -50,21 +50,17 @@ public class WorkAreaListener implements MouseListener {
 
 	@Override
 	public void mousePressed(MouseEvent arg0) {
-		//String selected_button_name = getSelectedButtonText(tool_buttons);
-		//JLabel lab = new JLabel(selected_button_name);
-		//panel.add(lab);
-		//lab.setLocation(arg0.getPoint());
-		//lab.setSize(lab.getPreferredSize());
-		
-		//panel.revalidate();
-		//panel.repaint();
-		
-		UMLButton selected_button = getSelectedButton(tool_buttons);
-		
-		if(selected_button != null && selected_button.class_or_assoc.equals("Class"))
-			handleClassPlacement(arg0, selected_button);
-		else if(selected_button != null && selected_button.class_or_assoc.equals("Association"))
-			handleAssociationPlacement(arg0, selected_button);
+		try {
+			UMLButton selected_button = ButtonFinder.getSelectedButton(tool_buttons);
+			
+			if(selected_button != null && selected_button.class_or_assoc.equals("Class"))
+				handleClassPlacement(arg0, selected_button);
+			else if(selected_button != null && selected_button.class_or_assoc.equals("Association"))
+				handleAssociationPlacement(arg0, selected_button);
+		}
+		catch(Exception e) {
+			return;
+		}
 	}
 
 	private void handleClassPlacement(MouseEvent arg0, UMLButton selected_button) {
@@ -72,10 +68,8 @@ public class WorkAreaListener implements MouseListener {
 		last_connector_id = "";
 		last_clicked_class = null;
 		
-		// TODO Auto-generated method stub
+		
 		JLabel lab = new JLabel(selected_button.getText() + ": ");
-		//g.drawRect(arg0.getPoint().x - 5, arg0.getPoint().y - 5, 
-		//		150, 20);
 		
 		ClassInstance c = new ClassInstance(EntityMeta.all_classes.get(selected_button.id));
 		panel.rectangles.put(c.id, arg0.getPoint());
@@ -125,6 +119,7 @@ public class WorkAreaListener implements MouseListener {
 			
 			
 			JComboBox<String> enum_values = new JComboBox<String>(values);
+			enum_values.addActionListener(new EnumComboBoxListener(enum_i));
 			panel.add(enum_values);
 			enum_values.setLocation(new Point(arg0.getPoint().x+enum_lab.getSize().width, enum_lab.getLocation().y));
 			enum_values.setSize(enum_lab.getPreferredSize());
@@ -174,6 +169,8 @@ public class WorkAreaListener implements MouseListener {
 					AssociationMeta a_meta = EntityMeta.all_associations.get(selected_button.id);
 					if(instance.meta.isOrInheritsFrom(a_meta.source.target_id)) {
 						panel.lines.put(assoc.id, new Point[]{click_point, first_click_point});
+						assoc.source_id = instance.id;
+						assoc.target_id = last_clicked_class.id;
 					}
 					else {
 						panel.lines.put(assoc.id, new Point[]{first_click_point, click_point});
@@ -269,16 +266,5 @@ public class WorkAreaListener implements MouseListener {
 
         return null;
     }
-	
-	public UMLButton getSelectedButton(ButtonGroup button_group) {
-		for (Enumeration<AbstractButton> buttons = button_group.getElements(); buttons.hasMoreElements();) {
-            AbstractButton button = buttons.nextElement();
-
-            if (button.isSelected()) {
-                return (UMLButton) button;
-            }
-        }
-		return null;
-	}
 
 }

@@ -1,7 +1,6 @@
 package parser;
 
 import java.io.FileInputStream;
-import java.util.HashMap;
 
 import data.AssociationEndMeta;
 import data.AssociationMeta;
