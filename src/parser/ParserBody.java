@@ -158,10 +158,7 @@ public class ParserBody {
 		attr.id = e.getAttributeValue("Id");
 		attr.name = e.getAttributeValue("Name");
 		
-		Element tmp = e.getFirstChildElement("Type");
-		attr.type = tmp.getFirstChildElement("DataType").getAttributeValue("Name");
-		
-		attr.default_value = e.getAttributeValue("InitialValue");
+		attr.type = e.getAttributeValue("InitialValue");
 		
 		EntityMeta.all_entities.put(attr.id, attr);
 		

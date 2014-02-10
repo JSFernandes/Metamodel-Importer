@@ -1,5 +1,7 @@
 package gui;
 
+import instances.ModelInstance;
+
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.EventQueue;
@@ -18,6 +20,9 @@ import java.util.ArrayList;
 import javax.swing.JScrollPane;
 
 import parser.ParserBody;
+import restrictions.FeatureModelRestrictions;
+import restrictions.RestrictionException;
+import restrictions.Restrictions;
 import data.AssociationMeta;
 import data.ClassMeta;
 
@@ -28,12 +33,14 @@ public class MainWindow {
 	ImageIcon assoc_icon;
 	
 	private JFrame frame;
+	WorkAreaPanel work_panel;
+	WorkAreaListener work_listener;
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		ParserBody p = new ParserBody("project2.xml");
+		ParserBody p = new ParserBody("project3.xml");
 		p.generateData();
 		
 		EventQueue.invokeLater(new Runnable() {
@@ -75,9 +82,11 @@ public class MainWindow {
 		setTools(vertical);
 		
 		WorkAreaPanel working_area = new WorkAreaPanel();
+		work_panel = working_area;
 		working_area.setLayout(null);
 		frame.getContentPane().add(working_area, BorderLayout.CENTER);
-		working_area.addMouseListener(new WorkAreaListener(working_area, tool_buttons));
+		work_listener = new WorkAreaListener(working_area, tool_buttons);
+		working_area.addMouseListener(work_listener);
 		
 		working_area.setBackground(Color.WHITE);
 	}
@@ -98,6 +107,12 @@ public class MainWindow {
 			tool_buttons.add(b);
 			toolbox.add(b);
 		}
+		UMLButton deleter = new UMLButton("Delete", new ImageIcon("delete_icon.png"), null, null);
+		tool_buttons.add(deleter);
+		toolbox.add(deleter);
+		UMLButton no_choice = new UMLButton("No action", new ImageIcon("empty_icon.png"), null, null);
+		tool_buttons.add(no_choice);
+		toolbox.add(no_choice);
 		
 		Button b = new Button("Generate instances");
 		b.addActionListener(new ActionListener() {
@@ -112,9 +127,18 @@ public class MainWindow {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					ModelInstance i = ModelInstance.getInstance();
+					Restrictions rest = new FeatureModelRestrictions();
+					rest.checkInstantiationRestriction(i);
 					SubInstancesWindow window = new SubInstancesWindow();
 					window.frame.setVisible(true);
-				} catch (Exception e) {
+				}
+				catch(RestrictionException e) {
+					work_listener.error.setText(e.getMessage());
+					work_listener.error.setLocation(10, 10);
+					work_listener.error.setSize(work_listener.error.getPreferredSize());
+				}
+				catch (Exception e) {
 					e.printStackTrace();
 				}
 			}

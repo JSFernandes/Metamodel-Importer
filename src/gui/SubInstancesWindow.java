@@ -4,8 +4,11 @@ import instances.ClassInstance;
 import instances.ModelInstance;
 
 import java.awt.BorderLayout;
+import java.awt.Button;
 import java.awt.Color;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -21,6 +24,7 @@ public class SubInstancesWindow {
 	ImageIcon assoc_icon;
 	
 	public JFrame frame;
+	InstancesWorkAreaListener listener;
 	
 	public SubInstancesWindow() {
 		initialize();
@@ -46,7 +50,8 @@ public class SubInstancesWindow {
 		InstancesWorkAreaPanel working_area = new InstancesWorkAreaPanel(model);
 		working_area.setLayout(null);
 		frame.getContentPane().add(working_area, BorderLayout.CENTER);
-		working_area.addMouseListener(new InstancesWorkAreaListener(working_area, tool_buttons));
+		listener = new InstancesWorkAreaListener(working_area, tool_buttons);
+		working_area.addMouseListener(listener);
 		
 		working_area.setBackground(Color.WHITE);
 	}
@@ -60,5 +65,19 @@ public class SubInstancesWindow {
 		UMLButton b = new UMLButton("Connector", assoc_icon, null, "Association");
 		tool_buttons.add(b);
 		toolbox.add(b);
+		UMLButton deleter = new UMLButton("Delete", new ImageIcon("delete_icon.png"), null, null);
+		tool_buttons.add(deleter);
+		toolbox.add(deleter);
+		UMLButton no_choice = new UMLButton("No action", new ImageIcon("empty_icon.png"), null, null);
+		tool_buttons.add(no_choice);
+		toolbox.add(no_choice);
+		
+		Button b2 = new Button("Verify valid");
+		b2.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				listener.verifyValidity();
+		}});
+		toolbox.add(b2);
 	}
 }
